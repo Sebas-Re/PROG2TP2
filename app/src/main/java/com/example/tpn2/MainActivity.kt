@@ -1,11 +1,14 @@
 package com.example.tpn2
 
+import android.R
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.RadioGroup
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -140,7 +144,6 @@ fun PantallaPrincipal(navController: NavController) {
             Column(
             ) {
                 Row {
-                    Column {
                         // TextView
                         AndroidView(
                             factory = { context ->
@@ -153,10 +156,8 @@ fun PantallaPrincipal(navController: NavController) {
                                 //.weight(1f)
                                 .padding(top = 4.dp)
                         )
-                    }
                 }
                 Row {
-                    Column {
                         // TextView
                         AndroidView(
                             factory = { context ->
@@ -169,9 +170,13 @@ fun PantallaPrincipal(navController: NavController) {
                                 //.weight(1f)
                                 .padding(top = 4.dp)
                         )
-                    }
+
                 }
-                Row {
+                Column(
+                    modifier = Modifier
+                        .padding(5.dp)
+                )
+                    {
 
                         // TextView
                         AndroidView(
@@ -183,7 +188,7 @@ fun PantallaPrincipal(navController: NavController) {
                             },
                             modifier = Modifier
                                 //.weight(1f)
-                                .padding(top = 4.dp)
+                                .padding(bottom = 8.dp)
                         )
                         AndroidView(
                             factory = { context ->
@@ -203,12 +208,13 @@ fun PantallaPrincipal(navController: NavController) {
                             },
                             modifier = Modifier
                                 .width(250.dp)
-                                .padding(20.dp)
                         )
-
-
                 }
-                Row {
+
+                Column(
+                    modifier = Modifier
+                        .padding(5.dp)
+                ) {
 
                     // TextView
                     AndroidView(
@@ -220,7 +226,7 @@ fun PantallaPrincipal(navController: NavController) {
                         },
                         modifier = Modifier
                             //.weight(1f)
-                            .padding(top = 4.dp)
+                            .padding(top = 8.dp)
                     )
                     AndroidView(
                         factory = { context ->
@@ -240,12 +246,14 @@ fun PantallaPrincipal(navController: NavController) {
                         },
                         modifier = Modifier
                             .width(250.dp)
-                            .padding(20.dp)
                     )
 
 
                 }
-                Row {
+                Column(
+                    modifier = Modifier
+                        .padding(5.dp)
+                ) {
 
                     // TextView
                     AndroidView(
@@ -257,33 +265,68 @@ fun PantallaPrincipal(navController: NavController) {
                         },
                         modifier = Modifier
                             //.weight(1f)
-                            .padding(top = 4.dp)
+                            .padding(top = 8.dp)
                     )
-                    AndroidView(
-                        factory = { context ->
-                            EditText(context).apply {
-                                hint = "Telefono"
-                                inputType = android.text.InputType.TYPE_CLASS_NUMBER  //
-                                textSize = 20f
-                                setText(Telefono)  // Configura el texto inicial
-                                addTextChangedListener(object : TextWatcher {
-                                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                                        Telefono = s.toString()
-                                    }
-                                    override fun afterTextChanged(s: Editable?) {}
-                                })
-                            }
-                        },
+                    Row(
                         modifier = Modifier
-                            .width(250.dp)
-                            .padding(20.dp)
+                            .padding(top = 8.dp)
                     )
+                    {
+                        AndroidView(
+                            factory = { context ->
+                                EditText(context).apply {
+                                    hint = "Telefono"
+                                    inputType = android.text.InputType.TYPE_CLASS_NUMBER  //
+                                    textSize = 20f
+                                    setText(Telefono)  // Configura el texto inicial
+                                    addTextChangedListener(object : TextWatcher {
+                                        override fun beforeTextChanged(
+                                            s: CharSequence?,
+                                            start: Int,
+                                            count: Int,
+                                            after: Int
+                                        ) {
+                                        }
 
-                    //DROP DOWN LIST O SPINNER
+                                        override fun onTextChanged(
+                                            s: CharSequence?,
+                                            start: Int,
+                                            before: Int,
+                                            count: Int
+                                        ) {
+                                            Telefono = s.toString()
+                                        }
 
+                                        override fun afterTextChanged(s: Editable?) {}
+                                    })
+                                }
+                            },
+                            modifier = Modifier
+                                .width(250.dp)
+                        )
+
+                        //DROP DOWN LIST O SPINNER
+                        AndroidView(
+                            factory = { context ->
+                                Spinner(context).apply {
+                                    val items = listOf("Casa", "Trabajo")
+                                    val adapter = ArrayAdapter(context, R.layout.simple_spinner_item, items).apply {
+                                        setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
+                                    }
+                                    setAdapter(adapter)
+                                }
+                            },
+                            modifier = Modifier
+                                .padding(top = 8.dp)
+                                .wrapContentWidth()
+                        )
+                    }
                 }
-                Row {
+
+                Column(
+                    modifier = Modifier
+                        .padding(5.dp)
+                ) {
 
                     // TextView
                     AndroidView(
@@ -295,8 +338,13 @@ fun PantallaPrincipal(navController: NavController) {
                         },
                         modifier = Modifier
                             //.weight(1f)
-                            .padding(top = 4.dp)
+                            .padding(top = 8.dp)
                     )
+                    Row(
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                    )
+                    {
                     AndroidView(
                         factory = { context ->
                             EditText(context).apply {
@@ -315,13 +363,30 @@ fun PantallaPrincipal(navController: NavController) {
                         },
                         modifier = Modifier
                             .width(250.dp)
-                            .padding(20.dp)
                     )
 
                     //DROP DOWN LIST O SPINNER
+                    AndroidView(
+                        factory = { context ->
+                            Spinner(context).apply {
+                                val items = listOf("Personal", "Laboral")
+                                val adapter = ArrayAdapter(context, R.layout.simple_spinner_item, items).apply {
+                                    setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
+                                }
+                                setAdapter(adapter)
+                            }
+                        },
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .wrapContentWidth()
+                    )
+                    }
 
                 }
-                Row {
+                Column(
+                    modifier = Modifier
+                        .padding(5.dp)
+                ) {
 
                     // TextView
                     AndroidView(
@@ -332,8 +397,7 @@ fun PantallaPrincipal(navController: NavController) {
                             }
                         },
                         modifier = Modifier
-                            //.weight(1f)
-                            .padding(top = 4.dp)
+                            .padding(top = 8.dp)
                     )
                     AndroidView(
                         factory = { context ->
@@ -353,12 +417,14 @@ fun PantallaPrincipal(navController: NavController) {
                         },
                         modifier = Modifier
                             .width(250.dp)
-                            .padding(20.dp)
                     )
 
 
                 }
-                Row {
+                Column(
+                    modifier = Modifier
+                        .padding(5.dp)
+                ) {
 
                     // TextView
                     AndroidView(
@@ -370,7 +436,7 @@ fun PantallaPrincipal(navController: NavController) {
                         },
                         modifier = Modifier
                             //.weight(1f)
-                            .padding(top = 4.dp)
+                            .padding(top = 8.dp)
                     )
                     AndroidView(
                         factory = { context ->
@@ -390,7 +456,6 @@ fun PantallaPrincipal(navController: NavController) {
                         },
                         modifier = Modifier
                             .width(250.dp)
-                            .padding(20.dp)
                     )
 
 
