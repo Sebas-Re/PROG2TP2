@@ -1,10 +1,12 @@
 package com.example.tpn2
 
 import android.R
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.RadioGroup
@@ -59,6 +61,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.tpn2.ui.theme.TPNº2Theme
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -442,16 +446,28 @@ fun PantallaPrincipal(navController: NavController) {
                         factory = { context ->
                             EditText(context).apply {
                                 hint = "Fecha Nacimiento"
-                                inputType = android.text.InputType.TYPE_CLASS_TEXT  // Deberia ser tipo DATE
                                 textSize = 20f
-                                setText(FechaNacimiento)  // Configura el texto inicial
-                                addTextChangedListener(object : TextWatcher {
-                                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                                        FechaNacimiento = s.toString()
-                                    }
-                                    override fun afterTextChanged(s: Editable?) {}
-                                })
+                                isFocusable = false
+                                isClickable = true
+                                inputType = EditorInfo.TYPE_NULL
+                                setOnClickListener {
+                                    val calendar = Calendar.getInstance()
+                                    val datePickerDialog = DatePickerDialog(
+                                        context,
+                                        { _, year, month, dayOfMonth ->
+                                            val selectedDate = Calendar.getInstance().apply {
+                                                set(year, month, dayOfMonth)
+                                            }.time
+                                            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                                            FechaNacimiento = sdf.format(selectedDate)
+                                            setText(FechaNacimiento)
+                                        },
+                                        calendar.get(Calendar.YEAR),
+                                        calendar.get(Calendar.MONTH),
+                                        calendar.get(Calendar.DAY_OF_MONTH)
+                                    )
+                                    datePickerDialog.show()
+                                }
                             }
                         },
                         modifier = Modifier
