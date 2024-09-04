@@ -313,7 +313,7 @@ fun PantallaPrincipal(navController: NavController) {
                         AndroidView(
                             factory = { context ->
                                 Spinner(context).apply {
-                                    val items = listOf("Casa", "Trabajo")
+                                    val items = listOf("Casa", "Trabajo", "Movil")
                                     val adapter = ArrayAdapter(context, R.layout.simple_spinner_item, items).apply {
                                         setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
                                     }
