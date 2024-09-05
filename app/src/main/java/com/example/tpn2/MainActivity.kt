@@ -521,7 +521,7 @@ fun PantallaPrincipal(navController: NavController) {
 
                 Row {
                     Column {
-                        Button(onClick = {navController.navigate("PantallaMasDatosContacto")}) {
+                        Button(onClick = {navController.navigate("PantallaMasDatosContactos")}) {
                             Text("CONTINUAR")
                         }
                     }
