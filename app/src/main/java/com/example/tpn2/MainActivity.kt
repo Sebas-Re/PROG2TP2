@@ -204,7 +204,14 @@ fun PantallaPrincipal(navController: NavController) {
                                     addTextChangedListener(object : TextWatcher {
                                         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                                         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                                            Nombre = s.toString()
+                                            // Filtrar caracteres no permitidos (solo letras y espacios)
+                                            val filteredText = s?.filter { it.isLetter() || it.isWhitespace() }
+                                            if (filteredText.toString() != s.toString()) {
+                                                this@apply.setText(filteredText)
+                                                this@apply.setSelection(filteredText?.length ?: 0)
+                                            } else {
+                                                Nombre = s.toString()
+                                            }
                                         }
                                         override fun afterTextChanged(s: Editable?) {}
                                     })
@@ -242,7 +249,14 @@ fun PantallaPrincipal(navController: NavController) {
                                 addTextChangedListener(object : TextWatcher {
                                     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                                     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                                        Apellido = s.toString()
+                                        // Filtrar caracteres no permitidos (solo letras y espacios)
+                                        val filteredText = s?.filter { it.isLetter() || it.isWhitespace() }
+                                        if (filteredText.toString() != s.toString()) {
+                                            this@apply.setText(filteredText)
+                                            this@apply.setSelection(filteredText?.length ?: 0)
+                                        } else {
+                                            Nombre = s.toString()
+                                        }
                                     }
                                     override fun afterTextChanged(s: Editable?) {}
                                 })
@@ -280,7 +294,7 @@ fun PantallaPrincipal(navController: NavController) {
                             factory = { context ->
                                 EditText(context).apply {
                                     hint = "Telefono"
-                                    inputType = android.text.InputType.TYPE_CLASS_NUMBER  //
+                                    inputType = android.text.InputType.TYPE_CLASS_PHONE  //
                                     textSize = 20f
                                     setText(Telefono)  // Configura el texto inicial
                                     addTextChangedListener(object : TextWatcher {
@@ -298,7 +312,14 @@ fun PantallaPrincipal(navController: NavController) {
                                             before: Int,
                                             count: Int
                                         ) {
-                                            Telefono = s.toString()
+                                            // Filtrar para que solo permita números y guiones
+                                            val filteredText = s?.filter { it.isDigit() || it == '-' }
+                                            if (filteredText.toString() != s.toString()) {
+                                                this@apply.setText(filteredText)
+                                                this@apply.setSelection(filteredText?.length ?: 0)
+                                            } else {
+                                                Telefono = s.toString()
+                                            }
                                         }
 
                                         override fun afterTextChanged(s: Editable?) {}
@@ -349,27 +370,42 @@ fun PantallaPrincipal(navController: NavController) {
                             .padding(top = 8.dp)
                     )
                     {
-                    AndroidView(
-                        factory = { context ->
-                            EditText(context).apply {
-                                hint = "Email"
-                                inputType = android.text.InputType.TYPE_CLASS_TEXT //
-                                textSize = 20f
-                                setText(Email)  // Configura el texto inicial
-                                addTextChangedListener(object : TextWatcher {
-                                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                                        Email = s.toString()
-                                    }
-                                    override fun afterTextChanged(s: Editable?) {}
-                                })
-                            }
-                        },
-                        modifier = Modifier
-                            .width(250.dp)
-                    )
+                        AndroidView(
+                            factory = { context ->
+                                EditText(context).apply {
+                                    hint = "Email"
+                                    inputType = android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+                                    textSize = 20f
+                                    setText(Email)  // Configura el texto inicial
+                                    addTextChangedListener(object : TextWatcher {
+                                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
-                    //DROP DOWN LIST O SPINNER
+                                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                                            val emailPattern = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+                                            val filteredText = s?.filter { !it.isWhitespace() }
+
+                                            if (filteredText.toString() != s.toString()) {
+                                                this@apply.setText(filteredText)
+                                                this@apply.setSelection(filteredText?.length ?: 0)
+                                            } else {
+                                                Email = s.toString()
+                                            }
+                                        }
+
+                                        override fun afterTextChanged(s: Editable?) {
+                                            val emailPattern = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+                                            if (!s.isNullOrEmpty() && !emailPattern.matches(s)) {
+                                                this@apply.error = "Formato de correo inválido"
+                                            }
+                                        }
+                                    })
+                                }
+                            },
+                            modifier = Modifier.width(250.dp)
+                        )
+
+
+                        //DROP DOWN LIST O SPINNER
                     AndroidView(
                         factory = { context ->
                             Spinner(context).apply {
