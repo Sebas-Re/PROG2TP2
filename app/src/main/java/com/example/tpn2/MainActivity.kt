@@ -502,6 +502,8 @@ fun PantallaPrincipal(navController: NavController) {
                                         calendar.get(Calendar.MONTH),
                                         calendar.get(Calendar.DAY_OF_MONTH)
                                     )
+
+                                    datePickerDialog.datePicker.maxDate = System.currentTimeMillis() // no permite seleccionar una fecha mayor a hoy
                                     datePickerDialog.show()
                                 }
                             }
