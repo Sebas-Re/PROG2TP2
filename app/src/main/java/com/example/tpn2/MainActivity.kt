@@ -648,7 +648,7 @@ fun PantallaMasDatosContactos(navController: NavController,nombre: String, apell
                     Column {
                         Button(onClick = {
                             var escritor: OutputStreamWriter? = null
-                            val datos = "$nombre;$apellido;$telefono;$email;$direccion;$fechanacimiento,$radiotext\n"
+                            val datos = "$nombre;$apellido;$telefono;$email;$direccion;$fechanacimiento;$radiotext\n"
                             try {
                                 escritor = OutputStreamWriter(ctx.openFileOutput("FicheroDatos.txt", Context.MODE_APPEND))
                                 escritor.write("$datos")
