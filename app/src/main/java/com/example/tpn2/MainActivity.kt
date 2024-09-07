@@ -11,6 +11,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Spinner
 import android.widget.TextView
@@ -73,13 +74,14 @@ fun MiApp() {
 
     NavHost(navController = navController, startDestination = "PantallaPrincipal") {
         composable("PantallaPrincipal") { PantallaPrincipal(navController) }
-        composable(route = "guardar/{nombre}/{apellido}/{telefono}/{email}/{direccion}",
+        composable(route = "guardar/{nombre}/{apellido}/{telefono}/{email}/{direccion}/{fechanacimiento}",
             arguments = listOf(
                 navArgument("nombre") { type = NavType.StringType },
                 navArgument("apellido") { type = NavType.StringType },
                 navArgument("telefono") { type = NavType.StringType },
                 navArgument("email") { type = NavType.StringType },
                 navArgument("direccion") { type = NavType.StringType },
+                navArgument("fechanacimiento") { type = NavType.StringType }
             )
         ) { backStackEntry ->
             val nombre = backStackEntry.arguments?.getString("nombre") ?: ""
@@ -87,7 +89,8 @@ fun MiApp() {
             val telefono = backStackEntry.arguments?.getString("telefono") ?: ""
             val email = backStackEntry.arguments?.getString("email") ?: ""
             val direccion = backStackEntry.arguments?.getString("direccion") ?: ""
-            PantallaMasDatosContactos(navController, nombre, apellido, telefono, email, direccion)
+            val fechanacimiento = backStackEntry.arguments?.getString("fechanacimiento") ?: ""
+            PantallaMasDatosContactos(navController, nombre, apellido, telefono, email, direccion, fechanacimiento)
         }
         composable("PantallaAgregarContactos") { /*PantallaAgregarContactos*/ }
         composable("PantallaListadoContactos") { /*PantallaListadoContactos*/ }
@@ -139,7 +142,8 @@ fun PantallaMasDatosContactosPreview() {
         apellido= "",
         telefono= "",
         email= "",
-        direccion= "")
+        direccion= "",
+        fechanacimiento= "")
 }
 
 
@@ -509,7 +513,7 @@ fun PantallaPrincipal(navController: NavController) {
                                             val selectedDate = Calendar.getInstance().apply {
                                                 set(year, month, dayOfMonth)
                                             }.time
-                                            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                                            val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
                                             fechanacimiento = sdf.format(selectedDate)
                                             setText(fechanacimiento)
                                         },
@@ -536,7 +540,7 @@ fun PantallaPrincipal(navController: NavController) {
 
                 Row {
                     Column {
-                        Button(onClick = {navController.navigate("guardar/$nombre/$apellido/$telefono/$email/$direccion")}) {
+                        Button(onClick = {navController.navigate("guardar/$nombre/$apellido/$telefono/$email/$direccion/$fechanacimiento")}) {
                             Text("CONTINUAR")
                         }
                     }
@@ -550,8 +554,9 @@ fun PantallaPrincipal(navController: NavController) {
 
 @Suppress("PreviewAnnotationInFunctionWithParameters")
 @Composable
-fun PantallaMasDatosContactos(navController: NavController,nombre: String, apellido: String, telefono: String, email: String, direccion: String) {
+fun PantallaMasDatosContactos(navController: NavController,nombre: String, apellido: String, telefono: String, email: String, direccion: String, fechanacimiento: String) {
     val ctx = LocalContext.current
+    var radiotext = ""
 
     Scaffold(topBar = {PantallaPrincipal_Header() }) { padding ->
         Box(modifier = Modifier
@@ -625,7 +630,10 @@ fun PantallaMasDatosContactos(navController: NavController,nombre: String, apell
                                     id = View.generateViewId()
                                 }.also { addView(it) }
 
-                                // Add more RadioButtons as needed
+                                setOnCheckedChangeListener { group, checkedId ->
+                                    val radioButton = group.findViewById<RadioButton>(checkedId)
+                                    radiotext = radioButton?.text.toString()
+                                    }
                             }
                         },
                         modifier = Modifier
@@ -640,7 +648,7 @@ fun PantallaMasDatosContactos(navController: NavController,nombre: String, apell
                     Column {
                         Button(onClick = {
                             var escritor: OutputStreamWriter? = null
-                            val datos = "$nombre;$apellido;$telefono;$email;$direccion\n"
+                            val datos = "$nombre;$apellido;$telefono;$email;$direccion;$fechanacimiento,$radiotext\n"
                             try {
                                 escritor = OutputStreamWriter(ctx.openFileOutput("FicheroDatos.txt", Context.MODE_APPEND))
                                 escritor.write("$datos")
