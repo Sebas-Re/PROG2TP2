@@ -46,9 +46,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import java.io.IOException
 import java.io.OutputStreamWriter
 import java.text.SimpleDateFormat
@@ -71,7 +73,22 @@ fun MiApp() {
 
     NavHost(navController = navController, startDestination = "PantallaPrincipal") {
         composable("PantallaPrincipal") { PantallaPrincipal(navController) }
-        composable("PantallaMasDatosContactos") { PantallaMasDatosContactos(navController) }
+        composable(route = "guardar/{nombre}/{apellido}/{telefono}/{email}/{direccion}",
+            arguments = listOf(
+                navArgument("nombre") { type = NavType.StringType },
+                navArgument("apellido") { type = NavType.StringType },
+                navArgument("telefono") { type = NavType.StringType },
+                navArgument("email") { type = NavType.StringType },
+                navArgument("direccion") { type = NavType.StringType },
+            )
+        ) { backStackEntry ->
+            val nombre = backStackEntry.arguments?.getString("nombre") ?: ""
+            val apellido = backStackEntry.arguments?.getString("apellido") ?: ""
+            val telefono = backStackEntry.arguments?.getString("telefono") ?: ""
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            val direccion = backStackEntry.arguments?.getString("direccion") ?: ""
+            PantallaMasDatosContactos(navController, nombre, apellido, telefono, email, direccion)
+        }
         composable("PantallaAgregarContactos") { /*PantallaAgregarContactos*/ }
         composable("PantallaListadoContactos") { /*PantallaListadoContactos*/ }
     }
@@ -116,7 +133,13 @@ fun PantallaPrincipalPreview() {
 @Composable
 fun PantallaMasDatosContactosPreview() {
     val navController = rememberNavController()
-    PantallaMasDatosContactos(navController)
+    PantallaMasDatosContactos(
+        navController = navController,
+        nombre= "",
+        apellido= "",
+        telefono= "",
+        email= "",
+        direccion= "")
 }
 
 
@@ -124,12 +147,12 @@ fun PantallaMasDatosContactosPreview() {
 @Suppress("PreviewAnnotationInFunctionWithParameters")
 @Composable
 fun PantallaPrincipal(navController: NavController) {
-    var Nombre by remember { mutableStateOf("") }
-    var Apellido by remember { mutableStateOf("") }
-    var Telefono by remember { mutableStateOf("") }
-    var Email by remember { mutableStateOf("") }
-    var Direccion by remember { mutableStateOf("") }
-    var FechaNacimiento by remember { mutableStateOf("") }
+    var nombre by remember { mutableStateOf("") }
+    var apellido by remember { mutableStateOf("") }
+    var telefono by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var direccion by remember { mutableStateOf("") }
+    var fechanacimiento by remember { mutableStateOf("") }
 
 
     Scaffold(topBar = {PantallaPrincipal_Header() }) { padding ->
@@ -192,7 +215,7 @@ fun PantallaPrincipal(navController: NavController) {
                                     hint = "Nombre"
                                     inputType = android.text.InputType.TYPE_CLASS_TEXT  //
                                     textSize = 20f
-                                    setText(Nombre)  // Configura el texto inicial
+                                    setText(nombre)  // Configura el texto inicial
                                     addTextChangedListener(object : TextWatcher {
                                         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                                         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -202,7 +225,7 @@ fun PantallaPrincipal(navController: NavController) {
                                                 this@apply.setText(filteredText)
                                                 this@apply.setSelection(filteredText?.length ?: 0)
                                             } else {
-                                                Nombre = s.toString()
+                                                nombre = s.toString()
                                             }
                                         }
                                         override fun afterTextChanged(s: Editable?) {}
@@ -237,7 +260,7 @@ fun PantallaPrincipal(navController: NavController) {
                                 hint = "Apellido"
                                 inputType = android.text.InputType.TYPE_CLASS_TEXT  //
                                 textSize = 20f
-                                setText(Apellido)  // Configura el texto inicial
+                                setText(apellido)  // Configura el texto inicial
                                 addTextChangedListener(object : TextWatcher {
                                     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                                     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -247,7 +270,7 @@ fun PantallaPrincipal(navController: NavController) {
                                             this@apply.setText(filteredText)
                                             this@apply.setSelection(filteredText?.length ?: 0)
                                         } else {
-                                            Nombre = s.toString()
+                                            apellido = s.toString()
                                         }
                                     }
                                     override fun afterTextChanged(s: Editable?) {}
@@ -288,7 +311,7 @@ fun PantallaPrincipal(navController: NavController) {
                                     hint = "Telefono"
                                     inputType = android.text.InputType.TYPE_CLASS_PHONE  //
                                     textSize = 20f
-                                    setText(Telefono)  // Configura el texto inicial
+                                    setText(telefono)  // Configura el texto inicial
                                     addTextChangedListener(object : TextWatcher {
                                         override fun beforeTextChanged(
                                             s: CharSequence?,
@@ -310,7 +333,7 @@ fun PantallaPrincipal(navController: NavController) {
                                                 this@apply.setText(filteredText)
                                                 this@apply.setSelection(filteredText?.length ?: 0)
                                             } else {
-                                                Telefono = s.toString()
+                                                telefono = s.toString()
                                             }
                                         }
 
@@ -368,7 +391,7 @@ fun PantallaPrincipal(navController: NavController) {
                                     hint = "Email"
                                     inputType = android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
                                     textSize = 20f
-                                    setText(Email)  // Configura el texto inicial
+                                    setText(email)  // Configura el texto inicial
                                     addTextChangedListener(object : TextWatcher {
                                         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
@@ -380,7 +403,7 @@ fun PantallaPrincipal(navController: NavController) {
                                                 this@apply.setText(filteredText)
                                                 this@apply.setSelection(filteredText?.length ?: 0)
                                             } else {
-                                                Email = s.toString()
+                                                email = s.toString()
                                             }
                                         }
 
@@ -437,11 +460,11 @@ fun PantallaPrincipal(navController: NavController) {
                                 hint = "Direccion"
                                 inputType = android.text.InputType.TYPE_CLASS_TEXT  //
                                 textSize = 20f
-                                setText(Direccion)  // Configura el texto inicial
+                                setText(direccion)  // Configura el texto inicial
                                 addTextChangedListener(object : TextWatcher {
                                     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                                     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                                        Direccion = s.toString()
+                                        direccion = s.toString()
                                     }
                                     override fun afterTextChanged(s: Editable?) {}
                                 })
@@ -487,8 +510,8 @@ fun PantallaPrincipal(navController: NavController) {
                                                 set(year, month, dayOfMonth)
                                             }.time
                                             val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                                            FechaNacimiento = sdf.format(selectedDate)
-                                            setText(FechaNacimiento)
+                                            fechanacimiento = sdf.format(selectedDate)
+                                            setText(fechanacimiento)
                                         },
                                         calendar.get(Calendar.YEAR),
                                         calendar.get(Calendar.MONTH),
@@ -513,7 +536,7 @@ fun PantallaPrincipal(navController: NavController) {
 
                 Row {
                     Column {
-                        Button(onClick = {navController.navigate("PantallaMasDatosContactos")}) {
+                        Button(onClick = {navController.navigate("guardar/$nombre/$apellido/$telefono/$email/$direccion")}) {
                             Text("CONTINUAR")
                         }
                     }
@@ -527,13 +550,7 @@ fun PantallaPrincipal(navController: NavController) {
 
 @Suppress("PreviewAnnotationInFunctionWithParameters")
 @Composable
-fun PantallaMasDatosContactos(navController: NavController) {
-    var Nombre by remember { mutableStateOf("") }
-    var Apellido by remember { mutableStateOf("") }
-    var Telefono by remember { mutableStateOf("") }
-    var Email by remember { mutableStateOf("") }
-    var Direccion by remember { mutableStateOf("") }
-    var FechaNacimiento by remember { mutableStateOf("") }
+fun PantallaMasDatosContactos(navController: NavController,nombre: String, apellido: String, telefono: String, email: String, direccion: String) {
     val ctx = LocalContext.current
 
     Scaffold(topBar = {PantallaPrincipal_Header() }) { padding ->
@@ -623,9 +640,10 @@ fun PantallaMasDatosContactos(navController: NavController) {
                     Column {
                         Button(onClick = {
                             var escritor: OutputStreamWriter? = null
+                            val datos = "$nombre;$apellido;$telefono;$email;$direccion\n"
                             try {
                                 escritor = OutputStreamWriter(ctx.openFileOutput("FicheroDatos.txt", Context.MODE_APPEND))
-                                escritor.write("$Nombre")
+                                escritor.write("$datos")
                             } catch (ex: Exception) {
                                 Log.e("Append", "Error al escribir fichero a memoria interna")
                             } finally {
