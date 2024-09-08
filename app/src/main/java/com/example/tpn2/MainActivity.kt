@@ -563,7 +563,7 @@ fun PantallaPrincipal(navController: NavController) {
 @Composable
 fun PantallaMasDatosContactos(navController: NavController,nombre: String, apellido: String, telefono: String, email: String, direccion: String, fechanacimiento: String) {
     val ctx = LocalContext.current
-    var radiotext = ""
+    var radiotext by remember { mutableStateOf<String?>(null) }
     var opcionesCheckbox = mutableSetOf<String>()
     var switchInformacion = false
 
@@ -642,7 +642,7 @@ fun PantallaMasDatosContactos(navController: NavController,nombre: String, apell
                                 setOnCheckedChangeListener { group, checkedId ->
                                     val radioButton = group.findViewById<RadioButton>(checkedId)
                                     radiotext = radioButton?.text.toString()
-                                    }
+                                }
                             }
                         },
                         modifier = Modifier
@@ -741,6 +741,13 @@ fun PantallaMasDatosContactos(navController: NavController,nombre: String, apell
                                     e.printStackTrace()
                                 }
                             }
+
+                            navController.navigate("PantallaPrincipal") {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    inclusive = true
+                                }
+                            }
+
                         }) {
                             Text("GUARDAR")
                         }
