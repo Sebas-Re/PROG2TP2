@@ -10,7 +10,9 @@ import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
+import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Spinner
@@ -25,6 +27,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
@@ -33,6 +37,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -52,7 +57,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import java.io.BufferedReader
 import java.io.IOException
+import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.text.SimpleDateFormat
 import java.util.*
@@ -557,6 +564,8 @@ fun PantallaPrincipal(navController: NavController) {
 fun PantallaMasDatosContactos(navController: NavController,nombre: String, apellido: String, telefono: String, email: String, direccion: String, fechanacimiento: String) {
     val ctx = LocalContext.current
     var radiotext = ""
+    var opcionesCheckbox = mutableSetOf<String>()
+    var switchInformacion = false
 
     Scaffold(topBar = {PantallaPrincipal_Header() }) { padding ->
         Box(modifier = Modifier
@@ -602,7 +611,7 @@ fun PantallaMasDatosContactos(navController: NavController,nombre: String, apell
                     AndroidView(
                         factory = { context ->
                             RadioGroup(context).apply {
-                                orientation = RadioGroup.VERTICAL // Establece orientacion verrical en el radiogroup
+                                orientation = RadioGroup.VERTICAL // Establece orientacion vertical en el radiogroup
 
                                 // Se añaden los botones a continuacion
                                 android.widget.RadioButton(context).apply {
@@ -643,12 +652,83 @@ fun PantallaMasDatosContactos(navController: NavController,nombre: String, apell
 
                 }
 
+                Row {
+                    Column {
+                        // TextView
+                        AndroidView(
+                            factory = { context ->
+                                TextView(context).apply {
+                                    text = "Intereses"  // Establece el texto
+                                    textSize = 16f  // Establece el tamaño del texto
+                                }
+                            },
+                            modifier = Modifier
+                                //.weight(1f)
+                                .padding(top = 4.dp)
+                        )
+                    }
+                }
+
+                Row{
+                    Column{
+                        AndroidView(
+                            factory = { context ->
+
+                                LinearLayout(context).apply {
+                                    orientation = LinearLayout.VERTICAL
+
+                                    // Añadir checkboxes
+                                    for (option in listOf("Deporte", "Musica", "Arte", "Tecnologia")) {
+                                        CheckBox(context).apply {
+                                            text = option
+                                            setOnCheckedChangeListener { buttonView, isChecked ->
+                                                if (isChecked) {
+                                                    opcionesCheckbox.add(option)
+                                                } else {
+                                                    opcionesCheckbox.remove(option)
+                                                }
+
+                                            }
+                                        }.also { addView(it) }
+                                    }}
+                            },
+                            modifier = Modifier
+                                .width(250.dp)
+                                .padding(20.dp)
+                        )
+                    }
+                }
+
+                Row{
+                    Column {
+                        AndroidView(
+                            factory = { context ->
+                                android.widget.Switch(context).apply {
+                                    text = "Desea recibir informacion?" // Set thetext for the switch
+                                    // You can set an OnCheckedChangeListener here if needed
+                                    setOnCheckedChangeListener { _, isChecked ->
+                                        // Handle the switch state change here
+                                        if (isChecked) {
+                                            switchInformacion = true
+                                        } else {
+                                            switchInformacion = false
+                                        }
+                                    }
+                                }
+                            },
+                            modifier = Modifier
+                                .width(250.dp)
+                                .padding(20.dp)
+                        )
+                    }
+
+                }
 
                 Row {
                     Column {
                         Button(onClick = {
                             var escritor: OutputStreamWriter? = null
-                            val datos = "$nombre;$apellido;$telefono;$email;$direccion;$fechanacimiento;$radiotext\n"
+                            val datos = "$nombre;$apellido;$telefono;$email;$direccion;$fechanacimiento;$radiotext;$opcionesCheckbox;$switchInformacion\n"
                             try {
                                 escritor = OutputStreamWriter(ctx.openFileOutput("FicheroDatos.txt", Context.MODE_APPEND))
                                 escritor.write("$datos")
@@ -673,6 +753,74 @@ fun PantallaMasDatosContactos(navController: NavController,nombre: String, apell
 
 }
 
+
+@Suppress("PreviewAnnotationInFunctionWithParameters")
+@Composable
+fun PantallaListadoContactos() {
+
+    Scaffold(topBar = {PantallaPrincipal_Header() }) { padding ->
+        Box(modifier = Modifier
+            .padding(padding)
+            .fillMaxSize()
+        ) {
+            Column(
+            ) {
+                Row {
+                    Column {
+                        // TextView
+                        AndroidView(
+                            factory = { context ->
+                                TextView(context).apply {
+                                    text = "CONTACTOS"  // Establece el texto
+                                    textSize = 30f  // Establece el tamaño del texto
+                                }
+                            },
+                            modifier = Modifier
+                                //.weight(1f)
+                                .padding(top = 4.dp)
+                        )
+                    }
+                }
+                Row {
+                    Column {
+                        // TextView
+                        AndroidView(
+                            factory = { context ->
+                                TextView(context).apply {
+                                    text = "Listado Contactos"  // Establece el texto
+                                    textSize = 15f  // Establece el tamaño del texto
+                                }
+                            },
+                            modifier = Modifier
+                                //.weight(1f)
+                                .padding(top = 4.dp)
+                        )
+                    }
+                }
+
+                Row {
+                    Column {
+                        val context = LocalContext.current // obtener contexto
+                        mostrarContenidoFichero(context)
+                    }
+                }
+
+            }
+
+        }
+    }
+
+}
+
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun PantallaListadoContactosPreview() {
+    val navController = rememberNavController()
+    PantallaListadoContactos()
+}
+
+
 fun AppendFichero(ctx: Context, names: String) {
     var escritor: OutputStreamWriter? = null
     try {
@@ -690,9 +838,47 @@ fun AppendFichero(ctx: Context, names: String) {
 
 }
 
+fun leerFichero(ctx: Context): List<String> {
+    val lines = mutableListOf<String>()
+    var reader: BufferedReader? = null
+    try {
+        reader = BufferedReader(InputStreamReader(ctx.openFileInput("FicheroDatos.txt")))
+        var line: String?
+        while (reader.readLine().also { line = it } != null) {
+            lines.add(line!!)
+        }
+    } catch (ex: Exception) {
+        Log.e("Read", "Error al leer fichero de memoria interna")
+    } finally {
+        try {
+            reader?.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+    return lines
+}
 
 
+@Composable
+fun mostrarContenidoFichero(context: Context) {
 
+    val fileContent = leerFichero(context)
 
+    Column {// Using Text composable for short content
+        if (fileContent.size <= 5) { // Example threshold for using Text
+            fileContent.forEach { line ->
+                Text(text = line)
+            }
+        } else {
+            // Using LazyColumn for longer content
+            LazyColumn {
+                items(fileContent) { line ->
+                    Text(text = line)
+                }
+            }
+        }
+    }
+}
 
 
