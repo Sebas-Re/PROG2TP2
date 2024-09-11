@@ -32,12 +32,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -52,6 +53,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -100,7 +102,7 @@ fun MiApp() {
             PantallaMasDatosContactos(navController, nombre, apellido, telefono, email, direccion, fechanacimiento)
         }
         composable("PantallaAgregarContactos") { /*PantallaAgregarContactos*/ }
-        composable("PantallaListadoContactos") { /*PantallaListadoContactos*/ }
+        composable("PantallaListadoContactos") { PantallaListadoContactosPreview() }
     }
 }
 
@@ -108,7 +110,7 @@ fun MiApp() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PantallaPrincipal_Header() {
+fun PantallaPrincipal_Header(navController: NavController) {
     var expanded by remember { mutableStateOf(false) }
 
     TopAppBar(
@@ -124,7 +126,25 @@ fun PantallaPrincipal_Header() {
                     contentDescription = "Open Menu"
                 )
             }
-
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }  // Cuando se hace clic fuera, cierra el menú
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Agregar contactos") },
+                    onClick = {
+                        // Lógica cuando se selecciona ...
+                        expanded = false
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Listado de contactos") },
+                    onClick = {
+                        navController.navigate("PantallaListadoContactos")
+                        expanded = false
+                    }
+                )
+            }
         }
     )
 }
@@ -166,7 +186,7 @@ fun PantallaPrincipal(navController: NavController) {
     var fechanacimiento by remember { mutableStateOf("") }
 
 
-    Scaffold(topBar = {PantallaPrincipal_Header() }) { padding ->
+    Scaffold(topBar = {PantallaPrincipal_Header(navController) }) { padding ->
         Box(modifier = Modifier
             .padding(padding)
             .fillMaxSize()
@@ -541,10 +561,6 @@ fun PantallaPrincipal(navController: NavController) {
 
                 }
 
-
-
-
-
                 Row {
                     Column {
                         Button(onClick = {navController.navigate("guardar/$nombre/$apellido/$telefono/$email/$direccion/$fechanacimiento")}) {
@@ -567,7 +583,7 @@ fun PantallaMasDatosContactos(navController: NavController,nombre: String, apell
     var opcionesCheckbox = mutableSetOf<String>()
     var switchInformacion = false
 
-    Scaffold(topBar = {PantallaPrincipal_Header() }) { padding ->
+    Scaffold(topBar = {PantallaPrincipal_Header(navController) }) { padding ->
         Box(modifier = Modifier
             .padding(padding)
             .fillMaxSize()
@@ -763,9 +779,9 @@ fun PantallaMasDatosContactos(navController: NavController,nombre: String, apell
 
 @Suppress("PreviewAnnotationInFunctionWithParameters")
 @Composable
-fun PantallaListadoContactos() {
+fun PantallaListadoContactos(navController: NavController) {
 
-    Scaffold(topBar = {PantallaPrincipal_Header() }) { padding ->
+    Scaffold(topBar = {PantallaPrincipal_Header(navController) }) { padding ->
         Box(modifier = Modifier
             .padding(padding)
             .fillMaxSize()
@@ -824,7 +840,7 @@ fun PantallaListadoContactos() {
 @Composable
 fun PantallaListadoContactosPreview() {
     val navController = rememberNavController()
-    PantallaListadoContactos()
+    PantallaListadoContactos(navController)
 }
 
 
