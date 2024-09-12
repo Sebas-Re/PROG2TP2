@@ -44,6 +44,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -101,7 +102,7 @@ fun MiApp() {
             val fechanacimiento = backStackEntry.arguments?.getString("fechanacimiento") ?: ""
             PantallaMasDatosContactos(navController, nombre, apellido, telefono, email, direccion, fechanacimiento)
         }
-        composable("PantallaAgregarContactos") { /*PantallaAgregarContactos*/ }
+        composable("PantallaAgregarContactos") { PantallaPrincipalPreview() }
         composable("PantallaListadoContactos") { PantallaListadoContactosPreview() }
     }
 }
@@ -133,9 +134,9 @@ fun PantallaPrincipal_Header(navController: NavController) {
                 DropdownMenuItem(
                     text = { Text("Agregar contactos") },
                     onClick = {
-                        // Lógica cuando se selecciona ...
-                        expanded = false
-                    }
+                            navController.navigate("PantallaAgregarContactos")
+                            expanded = false
+                        }
                 )
                 DropdownMenuItem(
                     text = { Text("Listado de contactos") },
@@ -580,8 +581,8 @@ fun PantallaPrincipal(navController: NavController) {
 fun PantallaMasDatosContactos(navController: NavController,nombre: String, apellido: String, telefono: String, email: String, direccion: String, fechanacimiento: String) {
     val ctx = LocalContext.current
     var radiotext by remember { mutableStateOf<String?>(null) }
-    var opcionesCheckbox = mutableSetOf<String>()
-    var switchInformacion = false
+    val opcionesCheckbox = remember { mutableStateListOf<String>() }
+    val switchInformacion = remember { mutableStateOf(false) }
 
     Scaffold(topBar = {PantallaPrincipal_Header(navController) }) { padding ->
         Box(modifier = Modifier
@@ -697,7 +698,11 @@ fun PantallaMasDatosContactos(navController: NavController,nombre: String, apell
                                     for (option in listOf("Deporte", "Musica", "Arte", "Tecnologia")) {
                                         CheckBox(context).apply {
                                             text = option
-                                            setOnCheckedChangeListener { buttonView, isChecked ->
+
+                                            // Establecer estado inicial basado en la lista de opciones seleccionadas
+                                            isChecked = opcionesCheckbox.contains(option)
+
+                                            setOnCheckedChangeListener { _, isChecked ->
                                                 if (isChecked) {
                                                     opcionesCheckbox.add(option)
                                                 } else {
@@ -712,6 +717,15 @@ fun PantallaMasDatosContactos(navController: NavController,nombre: String, apell
                                 .width(250.dp)
                                 .padding(20.dp)
                         )
+                        // Botón para mostrar la lista seleccionada
+                        Button(
+                            onClick = {
+                                println("Opciones seleccionadas: ${opcionesCheckbox.joinToString(", ")}")
+                            },
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            Text("Guardar Selecciones")
+                        }
                     }
                 }
 
@@ -721,14 +735,13 @@ fun PantallaMasDatosContactos(navController: NavController,nombre: String, apell
                             factory = { context ->
                                 android.widget.Switch(context).apply {
                                     text = "Desea recibir informacion?" // Set thetext for the switch
-                                    // You can set an OnCheckedChangeListener here if needed
+
+                                    // Establece el estado inicial
+                                    isChecked = switchInformacion.value
+
                                     setOnCheckedChangeListener { _, isChecked ->
                                         // Handle the switch state change here
-                                        if (isChecked) {
-                                            switchInformacion = true
-                                        } else {
-                                            switchInformacion = false
-                                        }
+                                        switchInformacion.value = isChecked
                                     }
                                 }
                             },
@@ -744,10 +757,25 @@ fun PantallaMasDatosContactos(navController: NavController,nombre: String, apell
                     Column {
                         Button(onClick = {
                             var escritor: OutputStreamWriter? = null
-                            val datos = "$nombre;$apellido;$telefono;$email;$direccion;$fechanacimiento;$radiotext;$opcionesCheckbox;$switchInformacion\n"
+
+                            val datos = buildString {
+                                append("$nombre;")
+                                append("$apellido;")
+                                append("$telefono;")
+                                append("$email;")
+                                append("$direccion;")
+                                append("$fechanacimiento;")
+                                append("$radiotext;")
+                                // Asegurarse de que la lista de intereses esté en el formato correcto
+                                append(opcionesCheckbox.joinToString(", ")) // Convertimos la lista a una cadena separada por comas
+                                append(";")
+                                append(switchInformacion.value.toString()) // Convertimos el booleano a una cadena de texto
+                                append("\n") // Añadir nueva línea al final de los datos
+                            }
+
                             try {
                                 escritor = OutputStreamWriter(ctx.openFileOutput("FicheroDatos.txt", Context.MODE_APPEND))
-                                escritor.write("$datos")
+                                escritor.write(datos)
                             } catch (ex: Exception) {
                                 Log.e("Append", "Error al escribir fichero a memoria interna")
                             } finally {
@@ -883,7 +911,7 @@ fun leerFichero(ctx: Context): List<String> {
 }
 
 
-@Composable
+/*@Composable
 fun mostrarContenidoFichero(context: Context) {
 
     val fileContent = leerFichero(context)
@@ -902,6 +930,44 @@ fun mostrarContenidoFichero(context: Context) {
             }
         }
     }
-}
+}*/
 
+@Composable
+fun mostrarContenidoFichero(context: Context) {
+    // Leer el contenido del fichero
+    val fileContent = leerFichero(context)
+
+    // Procesar y formatear los datos para que sean más legibles
+    val formattedContent = fileContent.map { line ->
+        // Suponiendo que cada línea tiene los datos separados por ';'
+        val datos = line.split(";")
+        // Formatear los datos de manera más legible
+        """
+        Nombre: ${datos.getOrNull(0) ?: "Desconocido"}
+        Apellido: ${datos.getOrNull(1) ?: "Desconocido"}
+        Teléfono: ${datos.getOrNull(2) ?: "Desconocido"}
+        Email: ${datos.getOrNull(3) ?: "Desconocido"}
+        Dirección: ${datos.getOrNull(4) ?: "Desconocido"}
+        Fecha de Nacimiento: ${datos.getOrNull(5) ?: "Desconocido"}
+        Educación: ${datos.getOrNull(6) ?: "Desconocido"}
+        Intereses: ${datos.getOrNull(7)?.removeSurrounding("[", "]") ?: "Desconocido"}
+        Recibir Información: ${datos.getOrNull(8) ?: "Desconocido"}
+        """.trimIndent()
+    }
+
+    // Mostrar el contenido formateado utilizando composables de Jetpack Compose
+    Column {
+        if (formattedContent.size <= 5) { // Threshold para usar Text en lugar de LazyColumn
+            formattedContent.forEach { line ->
+                Text(text = line)
+            }
+        } else {
+            LazyColumn {
+                items(formattedContent) { line ->
+                    Text(text = line)
+                }
+            }
+        }
+    }
+}
 
